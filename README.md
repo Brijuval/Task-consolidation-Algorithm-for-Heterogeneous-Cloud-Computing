@@ -52,7 +52,7 @@ The algorithm was tested using **CloudSim 3.0.3** by simulating 100 heterogeneou
    git clone [https://github.com/yourusername/EATC-Cloud-Scheduler.git](https://github.com/yourusername/EATC-Cloud-Scheduler.git)
 
 
-📁 Repository Structure
+## 📁 Repository Structure
 ├── src/
 │   ├── org.cloudbus.cloudsim.examples/
 │   │   ├── EATCBroker.java        # Core EATC algorithm logic (Min-Heap & ETC)
