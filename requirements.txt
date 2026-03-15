@@ -1,0 +1,19 @@
+# ==========================================
+# EATC Project Dependencies & Requirements
+# ==========================================
+
+# 1. Core Language
+Java Development Kit (JDK) - Version 1.8 or higher
+
+# 2. Simulation Framework
+CloudSim Toolkit - Version 3.0.3 
+(Download: https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-3.0.3)
+
+# 3. Recommended IDE
+Eclipse IDE for Java Developers (2020-06 or newer)
+OR IntelliJ IDEA Community Edition
+
+# 4. Hardware Requirements (Minimum)
+OS: Windows 10/11, macOS, or Linux
+RAM: 4GB (8GB recommended for faster simulation compilation)
+Disk Space: 500 MB
