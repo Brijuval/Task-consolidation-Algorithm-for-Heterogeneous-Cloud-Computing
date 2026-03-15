@@ -53,6 +53,7 @@ The algorithm was tested using **CloudSim 3.0.3** by simulating 100 heterogeneou
 
 
 ## 📁 Repository Structure
+```text
 ├── src/
 │   ├── org.cloudbus.cloudsim.examples/
 │   │   ├── EATCBroker.java        # Core EATC algorithm logic (Min-Heap & ETC)
@@ -62,3 +63,4 @@ The algorithm was tested using **CloudSim 3.0.3** by simulating 100 heterogeneou
 │   └── capstone_presentation.pptx  # Project slides
 ├── README.md
 └── .gitignore                     # Ignores compiled /bin files
+```
