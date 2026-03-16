@@ -5,4 +5,5 @@
 Watch the live execution of the EATC algorithm in CloudSim 3.0.3, demonstrating the real-time scheduling of 100 cloudlets and the final energy consumption reduction to ~203.75 kWh.
 
 🔗 DEMO VIDEO LINK:
+https://drive.google.com/file/d/1aaOSS9h_hSv4pFU3uPG5qZKjpk3X0Bml/view?usp=drivesdk
 https://drive.google.com/file/d/1Bhb7bscDvKHJOQyv3qYclyAbU_6hRTxN/view?usp=sharing
