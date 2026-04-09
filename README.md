@@ -1,8 +1,8 @@
-# ⚡ PMEC-X — Predictive Multifactor Energy Consolidation Scheduler
+# Task Consolidation Algorithm for Heterogeneous Cloud Computing
 
 <div align="center">
 
-**A novel cloud task scheduling algorithm that saves 40% energy with zero SLA violations**
+**PMEC-X: Predictive Multifactor Energy Consolidation Scheduler**
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=flat-square&logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-red?style=flat-square&logo=streamlit)](https://streamlit.io)
@@ -13,26 +13,40 @@
 
 ---
 
-## 📌 Overview
+## Paper Summary
 
-Cloud data centers waste **60–70% of peak power** on idle virtual machines — servers sitting idle, burning electricity around the clock. Existing schedulers like Round Robin, MinMin, and FCFS were never designed to fix this. They assign jobs to machines but never consolidate, never predict, and never shut anything down.
+PMEC-X is a heterogeneous cloud task consolidation algorithm designed to reduce idle power waste in data centers while preserving SLA compliance. The scheduler combines next-epoch workload prediction, urgency-based task ordering, 7-factor VM scoring, and SLA-tier-aware consolidation into a single scheduling loop that runs every 120 seconds.
 
-**PMEC-X** is a predictive, multi-objective cloud task scheduler that fixes this. It combines workload prediction, 7-factor scoring, and SLA-tier-aware VM consolidation into a single **O(n·m)** algorithm that runs every 120 seconds across a heterogeneous VM pool.
+### Abstract
+
+Cloud data centers consume a significant share of global electricity, and a large part of that draw comes from underutilised virtual machines. PMEC-X addresses this by combining EWMA+CUSUM workload prediction with carbon-aware and thermal-aware scheduling, then applying a consolidation policy that can retain, migrate, queue, or shut down VMs depending on SLA urgency. In the 24-hour simulation used in this repository, PMEC-X reduced energy use to 74.60 kWh, achieved zero SLA violations, and detected 30 regime changes in one epoch each.
 
 ### Results — 24-Hour Simulation (4,150 tasks · 20 VMs · 720 epochs)
 
-| Scheduler | Energy (kWh) | SLA Violations | Avg Active VMs | Shutdowns |
-|---|---|---|---|---|
-| **PMEC-X** | **74.60** | **0.0%** | **16.7** | **4** |
-| MinMin | 87.53 | 0.0% | 20.0 | 0 |
-| Round Robin | 125.10 | 7.1% | 20.0 | 0 |
-| FCFS | 119.88 | 0.2% | 20.0 | 0 |
+| Scheduler | Energy (kWh) | Violations | Viol % | Avg VMs | Shutdowns |
+|---|---|---|---|---|---|
+| **PMEC-X** | **74.60** | **0** | **0.0%** | **16.7** | **4** |
+| MinMin | 87.53 | 0 | 0.0% | 20.0 | 0 |
+| Round Robin | 125.10 | 294 | 7.1% | 20.0 | 0 |
+| FCFS | 119.88 | 10 | 0.2% | 20.0 | 0 |
+| MaxMin | 121.44 | 187 | 4.5% | 20.0 | 0 |
 
-> **PMEC-X saves 14.8% energy vs MinMin and 40.4% vs Round Robin — while maintaining zero SLA violations.**
+> PMEC-X saves 14.8% energy vs MinMin and 40.4% vs Round Robin while maintaining zero SLA violations.
 
 ---
 
-## 🧠 How It Works
+## Core Contributions
+
+| # | Contribution | Description |
+|---|---|---|
+| **C1** | Formal problem definition | Heterogeneous cloud task consolidation with seven normalised scoring factors, including carbon intensity and server thermal state |
+| **C2** | EWMA+CUSUM hybrid prediction | Next-epoch VM load forecasting with a theoretical MSE bound and regime-change detection |
+| **C3** | SLA-tier-aware consolidation | Differentiates CRITICAL, STANDARD, and BULK tasks to enable aggressive consolidation without SLA degradation |
+| **C4** | Comparative simulation framework | Benchmarks PMEC-X against Round Robin, MinMin, FCFS, and MaxMin on a 4,150-task, 24-hour workload |
+
+---
+
+## How It Works
 
 PMEC-X runs a 4-phase scheduling loop every 120 seconds:
 
@@ -41,18 +55,17 @@ INPUT: Task Queue → VM Pool → Carbon + Thermal Signals
          │
          ▼
  PHASE 1: EWMA + CUSUM Prediction
-         Predict next-epoch VM load before assigning anything
+         Forecast next-epoch VM load and detect regime changes
          │
          ▼
  PHASE 2: Urgency Sort
-         Rank tasks by priority + deadline slack
+         Rank tasks by priority and deadline slack
          U(τ) = 0.6 × Priority + 0.4 × Deadline Slack
          │
          ▼
  PHASE 3: 7-Factor Scoring Engine
-         S(τ, v) = Σ wₖ · fₖ   for every (task, VM) pair
-         f1: Speed  f2: Headroom  f3: Cost  f4: Energy
-         f5: ★ Carbon Intensity   f6: ★ Thermal State   f7: Urgency
+         S(τ, v) = Σ wₖ · fₖ for every (task, VM) pair
+         Speed · Headroom · Cost · Energy · Carbon · Thermal · Urgency
          │
          ▼
  PHASE 4: SLA-Tier-Aware Consolidation
@@ -61,18 +74,6 @@ INPUT: Task Queue → VM Pool → Carbon + Thermal Signals
          ▼
 OUTPUT: Schedule · Energy Log · SLA Report · CUSUM Events
 ```
-
----
-
-## 🚀 Five Novel Contributions
-
-| # | Contribution | Description |
-|---|---|---|
-| **N1** | Dual-layer scheduling | VM + container scheduling in one unified scoring pass |
-| **N2** | EWMA + CUSUM hybrid | Detects regime changes in 1 epoch vs 5–8 for EWMA alone |
-| **N3** | Carbon intensity factor | Live gCO₂/kWh as a 7th scoring factor — no prior scheduler does this |
-| **N4** | Adaptive weight vector | 7 tunable weights adjustable per workload profile |
-| **N5** | Thermal-aware scoring | Server inlet temperature (°C) penalises hot-aisle hosts |
 
 ---
 
@@ -164,8 +165,10 @@ Opens at `http://localhost:8501`. Press **▶ Start** to watch all 4 schedulers 
 | Real-time energy chart | All 4 schedulers plotted live — watch PMEC-X stay low |
 | VM heatmap | Live load per VM — see consolidation happening |
 | CUSUM alarm box | Turns red when a regime change is detected |
+| Carbon intensity dial | Shows the per-rack carbon signal used by the scorer |
 | Weight sliders | Adjust all 7 scoring weights live |
 | Spike injection | Simulate a sudden traffic burst — watch CUSUM fire |
+| Results summary | Final per-scheduler metrics at the end of the run |
 
 ---
 
@@ -223,7 +226,7 @@ Completes each epoch in **< 1ms** for n=4,150 tasks, m=20 VMs.
 | Parameter | Value |
 |---|---|
 | VM pool | 20 VMs across 4 types (fast / standard / cheap / hot-aisle) |
-| MIPS range | 800 – 10,000 MIPS |
+| MIPS ranges | fast: 8,000–10,000; standard: 3,000–6,000; cheap: 800–2,000; hot-aisle: 4,000–7,000 |
 | Task count | 4,150 tasks over 24 hours |
 | Arrival model | Non-homogeneous Poisson (λ = 3–18 tasks/epoch) |
 | SLA tiers | 10% CRITICAL · 30% STANDARD · 60% BULK |
@@ -231,6 +234,7 @@ Completes each epoch in **< 1ms** for n=4,150 tasks, m=20 VMs.
 | EWMA α | 0.3 |
 | CUSUM k / h | 0.05 / 0.3 |
 | Consolidation threshold | 0.12 (θ_low) |
+| Carbon scores | Rack A 0.25 · Rack B 0.50 · Rack C 0.45 · Rack D 0.75 |
 | Random seed | 42 (fully reproducible) |
 
 ---
@@ -244,12 +248,11 @@ Completes each epoch in **< 1ms** for n=4,150 tasks, m=20 VMs.
 
 ## 🔮 Future Work
 
-- **Live Carbon API** — WattTime / Electricity Maps integration for real-time gCO₂/kWh
-- **Bayesian Weight Tuner** — Gaussian Process bandit optimisation of the weight vector W
-- **Multi-datacenter scheduling** — network latency as an 8th scoring factor
-- **Reinforcement Learning** — policy gradient agent using PMEC-X scores as reward signal
-- **CloudSim Plus validation** — benchmark against Google Cluster Trace 2019
-- **Kubernetes integration** — real production deployment of the container-layer scheduler
+- **Live Carbon API Integration** — real-time gCO₂/kWh signals via WattTime or Electricity Maps
+- **Bayesian Adaptive Weight Tuning** — Gaussian Process bandit optimisation of the weight vector W
+- **Multi-Datacenter Scheduling** — add network latency as an eighth scoring factor
+- **CloudSim Plus Validation** — benchmark against Google Cluster Trace 2019
+- **Kubernetes Integration** — production deployment of the container-layer scheduling component
 
 ---
 
@@ -266,7 +269,14 @@ Completes each epoch in **< 1ms** for n=4,150 tasks, m=20 VMs.
 
 ## 👨‍💻 Author
 
-**Varun** — Alliance University, Capstone Project Phase II · 2026
+**Authors**
+
+- Varun V — Dept. of Information Technology, Alliance University
+- Valmeeki Singh — Dept. of Information Technology, Alliance University
+- Santhosh G — Dept. of Information Technology, Alliance University
+- Abdul Wahab — Dept. of Information Technology, Alliance University
+
+Repository maintainer: Varun
 
 ---
 
