@@ -225,7 +225,7 @@ Completes each epoch in **< 1ms** for n=4,150 tasks, m=20 VMs.
 
 | Parameter | Value |
 |---|---|
-| VM pool | 20 VMs across 4 types (fast / standard / cheap / hot-aisle) |
+| VM pool | 20 VMs across 4 types (fast/ standard/ cheap/ hot-aisle) |
 | MIPS ranges | fast: 8,000–10,000; standard: 3,000–6,000; cheap: 800–2,000; hot-aisle: 4,000–7,000 |
 | Task count | 4,150 tasks over 24 hours |
 | Arrival model | Non-homogeneous Poisson (λ = 3–18 tasks/epoch) |
